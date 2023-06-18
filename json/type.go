@@ -1,5 +1,7 @@
 package json
 
+import "errors"
+
 //json树的节点
 type JSONObject struct {
 	vType int
@@ -9,9 +11,21 @@ type JSONObject struct {
 	obj   map[string]*JSONObject
 }
 
+// TODO 添加error抛出（大工程。。。）
+
 // 查对象key
 func (obj *JSONObject) Type() int {
 	return obj.vType
+}
+
+// 查对象key
+func (obj *JSONObject) IsArray() bool {
+	return obj.vType == type_array
+}
+
+// 查对象key
+func (obj *JSONObject) IsObject() bool {
+	return obj.vType == type_object
 }
 
 // ======= 增 ==========、
@@ -81,11 +95,42 @@ func (obj *JSONObject) SetBool(b bool) {
 	}
 }
 
+func (obj *JSONObject) UpdateOrInsert(key string, value *JSONObject, update bool) error {
+	if obj.Type() == type_object {
+		if _, ok := obj.obj[key]; ok && update {
+			obj.obj[key] = value
+			return nil
+		} else if !update {
+			obj.obj[key] = value
+			return nil
+		}
+		return errors.New("对象没有该属性")
+	}
+	return errors.New("非对象不能设置属性")
+}
+
+func (obj *JSONObject) UpdateOrInsertIndex(idx int, value *JSONObject, update bool) error {
+	if obj.Type() == type_array && idx >= 0 {
+
+		if idx < len(obj.list) && update {
+			obj.list[idx] = value
+		} else if !update {
+			obj.list = append(obj.list, value)
+		}
+		return nil
+	}
+	return errors.New("非数组不能设置属性")
+}
+
 // ====== 查 =========
 // 查对象key
 func (obj *JSONObject) Get(key string) *JSONObject {
 	if obj.vType == type_object {
-		return obj.obj[key]
+		if val, ok := obj.obj[key]; ok != true {
+			return nil
+		} else {
+			return val
+		}
 	}
 	return nil
 }
@@ -96,6 +141,7 @@ func (obj *JSONObject) GetString() string {
 	}
 	return ""
 }
+
 func (obj *JSONObject) GetNumber() float64 {
 	if obj.vType == type_number {
 		return obj.num

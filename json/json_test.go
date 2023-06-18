@@ -87,3 +87,22 @@ func TestStringify(t *testing.T) {
 		})
 	}
 }
+
+func TestNewDemo(t *testing.T) {
+	tests := []struct {
+		name string
+		want *JSONObject
+	}{
+		{
+			"test",
+			&JSONObject{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewDemo(); got == nil {
+				t.Errorf("NewDemo() 不应该为nil")
+			}
+		})
+	}
+}

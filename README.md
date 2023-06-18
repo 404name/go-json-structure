@@ -1,3 +1,26 @@
+===========今日工作台===========
+
+参考重构下目录 https://github.dev/summerblue/gohub
+
+web提供服务
+		// 传入string返回json
+		// 传入string输出yaml
+		// 传入文件输出yaml
+		// 接口服务
+    // insert
+    // delete
+    // update
+    // get
+
+cmd 提供服务
+
+// 传入文件地址输出yaml地址
+// 格式化json
+
+
+
+===========今日工作台===========
+
 # Json解析器(Go语言版)
 
 > 使用go语言，完成一个简单的json解析器命令行工具，支持对json的序列化和反序列化，提供简易的交互UI，同时能对外能提供稳定、安全、统一的api接口。
@@ -10,8 +33,8 @@
 0. 完成需求分析 [2023年6月16日]
 1. 完成核心逻辑开发[2023年6月17日]
 2. 完成单元测试[2023年6月17日]
-3. 接入cobra封装成命令行工具
-4. 接入gin框架提供对外api接口
+3. 接入cobra封装成命令行工具[2023年6月18日]
+4. 接入gin框架提供对外api接口[2023年6月18日]
 5. 接入简易的UI界面
 
 **1. 基础功能**
@@ -26,14 +49,22 @@
 - [ ] json多种输出方式
 
 **3. 附加功能**
-- [ ] 做成命令行工具(使用cobra实现)
+- [x] 做成命令行工具(使用cobra实现)
 - [ ] 提供UI界面(Go的一些ui库可以提供)
-- [ ] 提供api接口(使用gin框架实现) 
+- [x] 提供api接口(使用gin框架实现) 
 
-## 接口约定
+# 二、项目介绍
 
-对于json处理应该有如下组件
-> 1. json对应的数据结构
+## 0. 项目架构
+
+1. cobra实现命令行框架，允许命令行不同指令进行不同的交互
+2. 通过cobra开通一个service指令绑定gin框架启动，就可以完成命令行开启api服务了
+3. cobra提供的服务和gin框架服务共用底层的service服务
+4. json核心逻辑通过json包实现，采取parser解析器，并且完成100%的单测。
+
+
+> 此处描述一下技术栈及里面一些点如何实现的
+## 1.json对应的数据结构
 
 此处参考java阿里的JSONObject，并且进行了整合，没有区分JSONArray
 ```
@@ -46,13 +77,13 @@ type JSONObject struct {
 	obj   map[string]*JSONObject
 }
 ```
-> 2. json的解析器parser
+## 2.json的解析器parser
 
 解析器核心逻辑就是处理一个string，去除/n空格等内容后递归解析获取得到JSONObject。
 - 核心逻辑 string -> JSONObject
 - 提供多种序列化、反序列化接口(文件读入、json读入、文件输出、yaml输出) 
 
-> 3. JSONObject对外提供的方法
+## 3.JSONObject对外提供的方法
 
 此处依然参考阿里的JSONObject，假设有一个`var obj JSONObject` 
 
@@ -69,10 +100,24 @@ type JSONObject struct {
 - 因为json不是强类型的语法，所以后端拿到json其实也不知道具体属性和内容，所以该判断还是得判断
 - 部分逻辑情况下后端会知道该读取哪个字段，并且这个字段是那种值是确定的，所以也应该提供直接获取字段的接口
 
+## 4. api及命令行 的接口约定
+
+这里主要是思考如何通过url实现json的增删改查
+
+- 查的话很简单，通过多个key去定位就行
+- 增的话只允许【数组、对象】节点去添加元素
+- 添加的元素对数组是单个值，对对象是k-v对象，但都可以通过字符串的json写入
+- 修改可以允许所有类型的修改，其实也就是通过多个key定位后直接改json
+
+所以可以得出如下的接口定义
+
+【增】/insert/xxx?value=xxx
+【删】/delete/xxx/xxx
+【改】/update/xxx/xxx?value=xxx
+【查】/get/xxx/xxx
 
 
-
-# 二、测试内容
+# 三、测试内容
 
 1. 支持BOOL值，数值，字符串，数组，对象
 2. 构建如下json，并且输出为yaml
@@ -99,8 +144,8 @@ type JSONObject struct {
     }
 }
 ```
-
-# 三、重构阶段
+basic.enable
+# 四、重构阶段
 
 ## 掌握基础设计方法
 > 待学习
@@ -124,7 +169,15 @@ type JSONObject struct {
 # 📑 开发日志
 > 简易记录下开发日志
 <details>
+<summary>[v0.0.2] : cobra+gin框架支持命令行及api操作 [2022-6-18] </summary>
 
+- 【feat】接入cobra框架，支持命令行增删改查json及提供json转换服务
+- 【feat】接入gin框架，支持浏览器增删改查json及提供json转换服务
+- 【feat】定义增删改查规范
+- 【test】完成所有方法的单测
+
+</details>
+<details>
 <summary>[v0.0.1] : 完成核心逻辑开发&单测覆盖 [2022-6-17] </summary>
 
 - 【feat】完成json核心组件parse解析器功能

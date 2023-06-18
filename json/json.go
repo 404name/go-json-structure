@@ -39,6 +39,9 @@ func Parse(value *JSONObject, json string) int {
 
 /* ===== 生成器 ===== */
 func Stringify(value *JSONObject) string {
+	if value == nil {
+		return "null"
+	}
 	var c easyContext
 	easyStringifyValue(&c, value)
 	return string(c.json)
@@ -50,4 +53,25 @@ func Save(value *JSONObject, filePath string) error {
 		return err
 	}
 	return nil
+}
+
+func NewDemo() *JSONObject {
+	var data string = `
+{
+	"code":"200",
+	"msg":"ok",
+	"data": {
+		"date": "2023年6月19日",
+		"city": "上海,北京广州",
+		"details": [
+			{"temp":"20℃/30℃","weather":"晴转多云","name":"上海","pm":"80","wind":"1级"},
+			{"temp":"15℃/24℃","weather":"晴","name":"北京","pm":"98","wind":"3级"},
+			{"temp":"26℃/32℃","weather":"多云","name":"广州","pm":"30","wind":"2级"}
+		]
+	}
+}
+	`
+	var json JSONObject
+	Parse(&json, data)
+	return &json
 }

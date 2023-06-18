@@ -1,0 +1,1 @@
+{"code":"200","msg":"ok","test":123,"data":{"city":"上海,北京广州","details":[{"temp":"20℃/30℃","weather":"晴转多云","name":"上海","pm":"80","wind":"1级"},{"wind":"3级","temp":"15℃/24℃","weather":"晴","name":"北京","pm":"98"},{"temp":"26℃/32℃","weather":"多云","name":"广州","pm":"30","wind":"2级"}],"date":123}}
