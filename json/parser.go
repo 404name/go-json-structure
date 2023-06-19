@@ -342,6 +342,10 @@ func easyStringifyValue(c *easyContext, value *JSONObject) {
 	c.json = getByteSliceJudgeByType(value)
 }
 
+func easyYamlStringifyValue(c *easyContext, value *JSONObject) {
+	c.json = getFormattedYAML(value, 0)
+}
+
 func stringifyObject(value *JSONObject) []byte {
 	var result []byte
 	result = append(result, '{')
@@ -391,7 +395,37 @@ func getByteSliceJudgeByType(value *JSONObject) []byte {
 	}
 	return result
 }
+func getFormattedYAML(value *JSONObject, indentLevel int) []byte {
+	indent := strings.Repeat(" ", indentLevel*2) // 缩进空格数
 
+	switch value.vType {
+	case type_null:
+		return []byte(indent + "null")
+	case type_bool:
+		return []byte(indent + string(value.value))
+	case type_number:
+		return []byte(indent + fmt.Sprintf("%.17g", value.num))
+	case type_string:
+		return []byte(indent + string(value.value))
+	case type_array:
+		result := []byte(indent + "-\n") // 数组的标记
+		for _, elem := range value.list {
+			result = append(result, getFormattedYAML(elem, indentLevel+1)...)
+			result = append(result, '\n') // 添加换行符
+		}
+		return result
+	case type_object:
+		result := []byte{}
+		for key, val := range value.obj {
+			result = append(result, []byte(indent+string([]byte(key))+":\n")...) // 对象的键
+			result = append(result, getFormattedYAML(val, indentLevel+1)...)
+			result = append(result, '\n') // 添加换行符
+		}
+		return result
+	default:
+		return nil
+	}
+}
 func stringifyString(str []byte) []byte {
 	var result []byte
 	result = append(result, '"')

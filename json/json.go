@@ -47,6 +47,16 @@ func Stringify(value *JSONObject) string {
 	return string(c.json)
 }
 
+/* ===== 生成器 ===== */
+func YamlStringify(value *JSONObject) string {
+	if value == nil {
+		return "null"
+	}
+	var c easyContext
+	easyYamlStringifyValue(&c, value)
+	return string(c.json)
+}
+
 func Save(value *JSONObject, filePath string) error {
 	err := ioutil.WriteFile(filePath, []byte(Stringify(value)), 0644)
 	if err != nil {
