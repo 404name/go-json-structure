@@ -189,7 +189,7 @@ basic.enable
 # 📑 开发日志
 > 简易记录下开发日志
 <details>
-<summary>[v0.1.0] : 完成命令行工具+Web接口 [2022-6-18] </summary>
+<summary>[v0.1.0] : 完成命令行工具+Web接口 [2022-6-20] </summary>
 
 - 【feat】完成命令行工具，开箱即用
 - 【feat】完善WEB端逻辑，提供更多json输出的功能
@@ -222,28 +222,6 @@ basic.enable
 - 【需求分析】选择技术栈，确定预期开发功能
 
 </details>
-
-<!-- <details>
-<summary>[1.2.0] : xxxxxxxxxxxx [2022-4-22] </summary>
-
-- 【特性】xxxxxxxxxxxx
-- 【特性】xxxxxxxxxxxx
-- 【特性】xxxxxxxxxxxx
-- 【特性】xxxxxxxxxxxx
-- 【修复】xxxxxxxxxxxx
-</details>
-
-<details>
-<summary>[1.1.0] : xxxxxxxxxxxx [2022-4-13] </summary>
-
-- 【特性】xxxxxxxxxxxx
-- 【特性】xxxxxxxxxxxx
-- 【修复】xxxxxxxxxxxx
-- 【修复】xxxxxxxxxxxx
-
-</details> -->
-
-
 
 # 📖 学习参考
 1. https://zhuanlan.zhihu.com/json-tutorial 从零开始教授如何写一个符合标准的 C 语言 JSON 库
