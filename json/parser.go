@@ -338,12 +338,18 @@ func easyParseLiteral(c *easyContext, value *JSONObject, target string, valueTyp
 	return parse_ok
 }
 
-func easyStringifyValue(c *easyContext, value *JSONObject) {
-	c.json = getByteSliceJudgeByType(value)
-}
+func easyStringifyValue(c *easyContext, value *JSONObject, outputType string) {
+	switch outputType {
+	case output_json:
+		c.json = getByteSliceJudgeByType(value)
+	case output_yaml:
+		c.json = getFormattedYAML(value, 0, false)
+	case output_xml:
+		c.json = getFormattedXML(value, 0)
+	default:
+		c.json = getByteSliceJudgeByType(value)
+	}
 
-func easyYamlStringifyValue(c *easyContext, value *JSONObject) {
-	c.json = getFormattedYAML(value, 0)
 }
 
 func stringifyObject(value *JSONObject) []byte {
@@ -395,9 +401,11 @@ func getByteSliceJudgeByType(value *JSONObject) []byte {
 	}
 	return result
 }
-func getFormattedYAML(value *JSONObject, indentLevel int) []byte {
+func getFormattedYAML(value *JSONObject, indentLevel int, arrayType bool) []byte {
 	indent := strings.Repeat(" ", indentLevel*2) // 缩进空格数
-
+	if arrayType {
+		indent = indent + "- "
+	}
 	switch value.vType {
 	case type_null:
 		return []byte(indent + "null")
@@ -408,19 +416,69 @@ func getFormattedYAML(value *JSONObject, indentLevel int) []byte {
 	case type_string:
 		return []byte(indent + string(value.value))
 	case type_array:
-		result := []byte(indent + "-\n") // 数组的标记
+		result := []byte("") // 数组的标记
 		for _, elem := range value.list {
-			result = append(result, getFormattedYAML(elem, indentLevel+1)...)
-			result = append(result, '\n') // 添加换行符
+			if elem.IsArray() || elem.IsObject() {
+				result = append(result, []byte(indent+"-\n")...) // 添加换行符
+				result = append(result, getFormattedYAML(elem, indentLevel+1, false)...)
+			} else {
+				// 添加一个标志符号
+				result = append(result, getFormattedYAML(elem, indentLevel+1, true)...)
+				result = append(result, '\n') // 添加换行符
+			}
+
 		}
 		return result
 	case type_object:
 		result := []byte{}
 		for key, val := range value.obj {
 			result = append(result, []byte(indent+string([]byte(key))+":\n")...) // 对象的键
-			result = append(result, getFormattedYAML(val, indentLevel+1)...)
+			result = append(result, getFormattedYAML(val, indentLevel+1, false)...)
 			result = append(result, '\n') // 添加换行符
 		}
+		return result
+	default:
+		return nil
+	}
+}
+func getFormattedXML(value *JSONObject, indentLevel int) []byte {
+	indent := strings.Repeat(" ", indentLevel*2) // 缩进空格数
+
+	switch value.vType {
+	case type_null:
+		return []byte(indent + "<null/>")
+	case type_bool:
+		return []byte(indent + string(value.value))
+	case type_number:
+		return []byte(indent + fmt.Sprintf("%.17g", value.num))
+	case type_string:
+		return []byte(indent + string(value.value))
+	case type_array:
+		result := []byte(indent + "<array>\n") // 数组的标记
+		for _, elem := range value.list {
+			result = append(result, getFormattedXML(elem, indentLevel+1)...)
+			result = append(result, '\n') // 添加换行符
+		}
+		result = append(result, []byte(indent+"</array>")...)
+		return result
+	case type_object:
+		result := []byte(indent + "<object>\n")
+		for key, val := range value.obj {
+			if val.IsArray() || val.IsObject() {
+				result = append(result, []byte(indent+strings.Repeat(" ", 2)+"<"+key+">\n")...) // 对象的键
+				result = append(result, getFormattedXML(val, indentLevel+2)...)
+				result = append(result, []byte("\n")...)
+				result = append(result, []byte(indent+strings.Repeat(" ", 2)+"</"+key+">")...)
+				result = append(result, '\n') // 添加换行符
+			} else {
+				result = append(result, []byte(indent+strings.Repeat(" ", 2)+"<"+key+">")...) // 对象的键
+				result = append(result, getFormattedXML(val, 0)...)
+				result = append(result, []byte("</"+key+">")...)
+				result = append(result, '\n') // 添加换行符
+			}
+
+		}
+		result = append(result, []byte(indent+"</object>")...)
 		return result
 	default:
 		return nil

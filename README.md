@@ -1,32 +1,52 @@
-===========今日工作台===========
-
-参考重构下目录 https://github.dev/summerblue/gohub
-
-web提供服务
-		// 传入string返回json
-		// 传入string输出yaml
-		// 传入文件输出yaml
-		// 接口服务
-    // insert
-    // delete
-    // update
-    // get
-
-cmd 提供服务
-
-// 传入文件地址输出yaml地址
-// 格式化json
 
 
-
-===========今日工作台===========
-
-# Json解析器(Go语言版)
-
+# [Json解析器(Go语言版)](https://github.com/404name/go-json-structure)
 > 使用go语言，完成一个简单的json解析器命令行工具，支持对json的序列化和反序列化，提供简易的交互UI，同时能对外能提供稳定、安全、统一的api接口。
 
 技术栈：`go语言` `cobra命令行框架` `gin Web框架` `git版本管理` 
 
+![](/docs/gson.gif)
+
+1. 提供命令行工具
+```
+Usage:
+  gson [command]
+
+Available Commands:
+  server      启动web服务
+  init        初始化json数据
+  delete      删除内容
+  get         获取内容
+  insert      添加内容
+  update      修改内容
+  save        保存内容
+  version     显示当前版本
+  help        Help about any command
+
+Flags:
+      --debug               start with debug mode
+  -h, --help                help for gson
+      --json string         自定义json数据源(需要满足格式要求)
+      --keys string         查询的内容/xxxx/xxx/xxx的形式 (default "/")
+      --output string       输出格式[json|yaml|xml] (default "json")
+      --outputPath string   输出地址，默认为output.txt (default "./output.txt")
+      --value string        增和改设置的json值
+      --version string      go-json-structure[BETA] (default "1.0.0")
+```
+
+2. 提供WEB接口
+```
+
+1. 功能示例:
+【初始化】：自定义初始化---默认初始化
+【格式化输出】：输出json---输出yaml---输出xml
+2. 增删改查: 
+接口格式：/{action[get|insert|update|delete]}/{key}/{key}...
+【查】/get ---/get/data--- /get/data/details--- /get/data/details/1
+【增】/insert/data/test?value=123
+【改】/update/data/test?value=[{"data":123},{"test":[1,2]}]
+【删】/delete/data/test
+```
 # 一、需求分析
 
 ## 开发进度
@@ -35,22 +55,22 @@ cmd 提供服务
 2. 完成单元测试[2023年6月17日]
 3. 接入cobra封装成命令行工具[2023年6月18日]
 4. 接入gin框架提供对外api接口[2023年6月18日]
-5. 接入简易的UI界面
+5. 接入简易的WEB界面[2023年6月20日]
 
 **1. 基础功能**
 - [x] 文件读入json
-- [ ] 输出json为yaml
+- [x] 输出json为yaml
 - [x] 单元测试覆盖率不低于90%
 - [ ] 支持异常处理提示 
 
 **2. api功能**
 - [x] 对json的内容增删改查
 - [x] json多种读入方式
-- [ ] json多种输出方式
+- [x] json多种输出方式
 
 **3. 附加功能**
 - [x] 做成命令行工具(使用cobra实现)
-- [ ] 提供UI界面(Go的一些ui库可以提供)
+- [ ] 提供UI界面(Go的ui库可以提供)
 - [x] 提供api接口(使用gin框架实现) 
 
 # 二、项目介绍
@@ -168,6 +188,14 @@ basic.enable
  
 # 📑 开发日志
 > 简易记录下开发日志
+<details>
+<summary>[v0.1.0] : 完成命令行工具+Web接口 [2022-6-18] </summary>
+
+- 【feat】完成命令行工具，开箱即用
+- 【feat】完善WEB端逻辑，提供更多json输出的功能
+- 【test】完善单测
+
+</details>
 <details>
 <summary>[v0.0.2] : cobra+gin框架支持命令行及api操作 [2022-6-18] </summary>
 

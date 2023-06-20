@@ -11,7 +11,7 @@ import (
 
 // VersionCmd represents the version command
 var ServerCmd = &cobra.Command{
-	Use:   "service",
+	Use:   "server",
 	Short: "启动web服务",
 	Run: func(cmd *cobra.Command, args []string) {
 		// 创建一个默认的 Gin 引擎
@@ -20,13 +20,13 @@ var ServerCmd = &cobra.Command{
 		r := gin.Default()
 		r.Use(PathArrayMiddleware())
 		// 静态文件服务
-		r.GET("/", index)
+		r.GET("/", Index)
 		// 接口服务
-		r.GET("/init", demo)
-		r.GET("/get/*paths", get)
-		r.GET("/delete/*paths", delete)
-		r.GET("/update/*paths", update)
-		r.GET("/insert/*paths", insert)
+		r.GET("/init", Init)
+		r.GET("/get/*paths", Get)
+		r.GET("/delete/*paths", Delete)
+		r.GET("/update/*paths", Update)
+		r.GET("/insert/*paths", Insert)
 		// 传入string返回json
 		// 传入string输出yaml
 		// 传入文件输出yaml
@@ -48,9 +48,15 @@ func PathArrayMiddleware() gin.HandlerFunc {
 		// 获取value
 		value := c.Query("value")
 		c.Set("value", value)
-
+		// 获取展示类型
+		showType := c.Query("type")
+		c.Set("type", showType)
+		// 获取json格式
+		json := c.Query("json")
+		c.Set("json", json)
 		// 获取路径
 		paths := c.Param("paths")
+
 		result := strings.Split(paths, "/")
 
 		var pathArray []string
@@ -64,12 +70,14 @@ func PathArrayMiddleware() gin.HandlerFunc {
 		c.Next()
 	}
 }
-func demo(c *gin.Context) {
-	c.String(200, service.Demo())
+func Init(c *gin.Context) {
+	jsonStr := c.GetString("json")
+	c.String(200, service.InitJson(jsonStr))
 }
-func get(c *gin.Context) {
+func Get(c *gin.Context) {
 	keys := c.GetStringSlice("keys")
-	res, err := service.GetValue(keys)
+	outputType := c.GetString("type")
+	res, err := service.GetValue(keys, outputType)
 	if err != nil {
 		c.String(200, err.Error())
 		return
@@ -77,7 +85,7 @@ func get(c *gin.Context) {
 	c.String(200, res)
 }
 
-func update(c *gin.Context) {
+func Update(c *gin.Context) {
 	keys := c.GetStringSlice("keys")
 	value := c.GetString("value")
 	res, err := service.UpdateOrInsertValue(keys, value, true)
@@ -89,7 +97,7 @@ func update(c *gin.Context) {
 	c.String(200, res)
 }
 
-func insert(c *gin.Context) {
+func Insert(c *gin.Context) {
 	keys := c.GetStringSlice("keys")
 	value := c.GetString("value")
 	res, err := service.UpdateOrInsertValue(keys, value, false)
@@ -101,7 +109,7 @@ func insert(c *gin.Context) {
 	c.String(200, res)
 }
 
-func delete(c *gin.Context) {
+func Delete(c *gin.Context) {
 	keys := c.GetStringSlice("keys")
 	res, err := service.DeleteValue(keys)
 	if err != nil {
@@ -111,7 +119,7 @@ func delete(c *gin.Context) {
 	c.String(200, res)
 }
 
-func index(c *gin.Context) {
+func Index(c *gin.Context) {
 	html := `
 	<!DOCTYPE html>
 	<html>
@@ -122,20 +130,28 @@ func index(c *gin.Context) {
 		<h1>欢迎使用 go-json-structure-WEB</h1>
 		<p>接口列表如下:</p>
 		<hr>
-		<h3>1. 增删改查: 可以先<a href="/init">初始化系统demo</a>增删改都是通过多个key去定位节点，参数value填写需要添加或者修改的json</h3>
+	
+		<h3>1. 功能示例:</h3>
 		<ul>
-			<li>【查】<a href="/get">/get</a> 或者 <a href="/get/data">/get/data</a> 或者  <a href="/get/data/details">/get/data/details</a></li> 或者 <a href="/get/data/details/1">/get/data/details/1</a></li>
+			<li>【初始化】：<a href='/init?json={"data":{"city":"eeeeee","details":[20,20,30],"date":[1,2,3]},"code":"200","msg":"ok"}'>自定义初始化</a>---<a href="/init">默认初始化</a></li>
+			<li>【格式化输出】：<a href="/get?type=json">输出json</a>---<a href="/get?type=yaml">输出yaml</a>---<a href="/get?type=xml">输出xml</a></li>
+		</ul>
+		<hr>
+		<h3>2. 增删改查: 增删改都是通过多个key去定位节点，参数value填写需要添加或者修改的json</h3>
+		<p>接口格式：/{action[get|insert|update|delete]}/{key}/{key}...</p>
+		<ul>
+			<li>【查】<a href="/get">/get</a> ---<a href="/get/data">/get/data</a>--- <a href="/get/data/details">/get/data/details</a>--- <a href="/get/data/details/1">/get/data/details/1</a></li>
 			<li>【增】<a href="/insert/data/test?value=123">/insert/data/test?value=123</a></li>
 			<li>【改】<a href='/update/data/test?value=[{"data":123},{"test":[1,2]}]'>/update/data/test?value=[{"data":123},{"test":[1,2]}]</a></li>
 			<li>【删】<a href="/delete/data/test">/delete/data/test</a></li>
 			
 		</ul>
 		<hr>
-		<h3>2. 服务列表:</h3>
+		<h3>3. 待开发功能</h3>
 		<ul>
-			<li><a href="/insert">传入string返回json</a></li>
-			<li><a href="/insert">传入string输出yaml</a></li>
-			<li><a href="/demo">传入文件输出yaml</a></li>
+			<li> 1. 完成简易html页面开发(bootstrap)</li>
+			<li> 2. 优化重构代码</li>
+			<li> 3. 完善测试 </li>
 		</ul>
 	</body>
 	</html>

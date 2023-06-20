@@ -281,7 +281,7 @@ func TestStringifyObject(t *testing.T) {
 func testRoundTrip(json string) {
 	var v JSONObject
 	expectEQInt(parse_ok, Parse(&v, json))
-	json2 := Stringify(&v)
+	json2 := Stringify(&v, output_json)
 	expectEQString(json, json2)
 }
 

@@ -22,7 +22,7 @@ func init() {
 	err := json.ParseFile(&JSON, StaticJsonPath)
 	if err != nil {
 		JSON = *json.NewDemo()
-		json.Save(&JSON, StaticJsonPath)
+		json.Save(&JSON, StaticJsonPath, "json")
 	}
 }
 
@@ -63,18 +63,29 @@ func getJson(keys []string, deep int) (*json.JSONObject, error) {
 	return curJson, nil
 }
 
-func Demo() string {
-	JSON = *json.NewDemo()
-	json.Save(&JSON, StaticJsonPath)
-	return json.Stringify(&JSON)
+func InitJson(jsonStr string) string {
+	if jsonStr == "" {
+		JSON = *json.NewDemo()
+		json.Save(&JSON, StaticJsonPath, "json")
+		return json.Stringify(&JSON, "")
+	} else {
+		var v json.JSONObject
+		if res := json.Parse(&v, jsonStr); res != 0 {
+			return "json解析异常,错误代码：" + string(res)
+		} else {
+			JSON = v
+			json.Save(&JSON, StaticJsonPath, "json")
+			return jsonStr
+		}
+	}
 }
 
-func GetValue(keys []string) (string, error) {
+func GetValue(keys []string, outputType string) (string, error) {
 	curJson, err := getCurJson(keys)
 	if err != nil {
 		return "", err
 	}
-	return json.Stringify(curJson), nil
+	return json.Stringify(curJson, outputType), nil
 }
 
 func DeleteValue(keys []string) (string, error) {
@@ -98,8 +109,8 @@ func DeleteValue(keys []string) (string, error) {
 	}
 
 	// 更新json并且返回
-	json.Save(&JSON, StaticJsonPath)
-	return json.Stringify(&JSON), nil
+	json.Save(&JSON, StaticJsonPath, "json")
+	return json.Stringify(&JSON, "json"), nil
 }
 
 func UpdateOrInsertValue(keys []string, value string, update bool) (string, error) {
@@ -133,7 +144,11 @@ func UpdateOrInsertValue(keys []string, value string, update bool) (string, erro
 	}
 
 	// 更新json并且返回
-	json.Save(&JSON, StaticJsonPath)
-	return json.Stringify(&JSON), nil
+	json.Save(&JSON, StaticJsonPath, "json")
+	return json.Stringify(&JSON, "json"), nil
 
+}
+
+func Save(filePath string, outputType string) error {
+	return json.Save(&JSON, filePath, outputType)
 }

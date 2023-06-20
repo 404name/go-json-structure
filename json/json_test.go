@@ -13,7 +13,7 @@ func TestSave(t *testing.T) {
 	"test": [1,2,3]
 }
 	`)
-	err := Save(&v, "./json.txt")
+	err := Save(&v, "./json.txt", output_json)
 	if err != nil {
 		t.Errorf("Failed to save file: %v", err)
 	}
@@ -81,7 +81,7 @@ func TestStringify(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := Stringify(tt.args.value); got != tt.want {
+			if got := Stringify(tt.args.value, ""); got != tt.want {
 				t.Errorf("Stringify() = %v, want %v", got, tt.want)
 			}
 		})

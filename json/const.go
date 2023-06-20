@@ -10,6 +10,14 @@ const (
 	type_object
 )
 
+//输出格式
+const (
+	output_string string = ""
+	output_json   string = "json"
+	output_yaml   string = "yaml"
+	output_xml    string = "xml"
+)
+
 //解析后的返回值
 const (
 	parse_ok = iota

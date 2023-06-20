@@ -38,27 +38,17 @@ func Parse(value *JSONObject, json string) int {
 }
 
 /* ===== 生成器 ===== */
-func Stringify(value *JSONObject) string {
+func Stringify(value *JSONObject, outputType string) string {
 	if value == nil {
 		return "null"
 	}
 	var c easyContext
-	easyStringifyValue(&c, value)
+	easyStringifyValue(&c, value, outputType)
 	return string(c.json)
 }
 
-/* ===== 生成器 ===== */
-func YamlStringify(value *JSONObject) string {
-	if value == nil {
-		return "null"
-	}
-	var c easyContext
-	easyYamlStringifyValue(&c, value)
-	return string(c.json)
-}
-
-func Save(value *JSONObject, filePath string) error {
-	err := ioutil.WriteFile(filePath, []byte(Stringify(value)), 0644)
+func Save(value *JSONObject, filePath string, outputType string) error {
+	err := ioutil.WriteFile(filePath, []byte(Stringify(value, outputType)), 0644)
 	if err != nil {
 		return err
 	}
